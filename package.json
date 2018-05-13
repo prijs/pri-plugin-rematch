@@ -1,6 +1,6 @@
 {
   "name": "pri-plugin-rematch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "built/src/index.js",
   "scripts": {
@@ -21,7 +21,6 @@
   "homepage": "https://github.com/prijs/pri-plugin-rematch#readme",
   "dependencies": {
     "@types/react-redux": "^6.0.0",
-    "pri": "^0.7.51",
     "react-redux": "^5.0.7",
     "rematch": "^0.1.3"
   },
