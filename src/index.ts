@@ -98,6 +98,7 @@ export default async (instance: typeof pri) => {
 
     const modelsContent = `
       import { init } from '@rematch/core'
+      import { connect as reduxConnect } from 'react-redux'
 
       ${analyseInfo.projectAnalyseRematch.modelFiles
         .map(modelFile => {
@@ -117,6 +118,32 @@ export default async (instance: typeof pri) => {
 
       const store = init({models})
       export default store
+
+      // Strong type connect
+      type IMapStateToProps = (
+        state?: {
+          ${analyseInfo.projectAnalyseRematch.modelFiles
+            .map(modelFile => {
+              return `${modelFile.name}: typeof ${modelFile.name}.state;`;
+            })
+            .join('\n')}
+        },
+        props?: any
+      ) => object;
+
+      type IMapDispatchToProps = (
+        dispatch?: {
+          ${analyseInfo.projectAnalyseRematch.modelFiles
+            .map(modelFile => {
+              return `${modelFile.name}: typeof ${modelFile.name}.reducers & typeof ${modelFile.name}.effects;`;
+            })
+            .join('\n')}
+        }
+      ) => object;
+
+      export const connect = (mapStateToProps?: IMapStateToProps, mapDispatchToProps?: IMapDispatchToProps) => {
+        return reduxConnect(mapStateToProps, mapDispatchToProps) as any;
+      };
     `;
 
     // If has stores, create helper.ts
