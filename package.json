@@ -1,0 +1,35 @@
+{
+  "name": "pri-plugin-rematch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "built/src/index.js",
+  "scripts": {
+    "test": "pri plugin test",
+    "start": "pri plugin watch",
+    "prepublishOnly": "pri plugin build",
+    "release": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prijs/pri-plugin-rematch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prijs/pri-plugin-rematch/issues"
+  },
+  "homepage": "https://github.com/prijs/pri-plugin-rematch#readme",
+  "dependencies": {
+    "@types/react-redux": "^6.0.0",
+    "pri": "^0.7.51",
+    "react-redux": "^5.0.7",
+    "rematch": "^0.1.3"
+  },
+  "pri": {
+    "type": "plugin"
+  },
+  "types": "src/index.ts",
+  "devDependencies": {
+    "pri": "*"
+  }
+}
