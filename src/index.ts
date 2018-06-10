@@ -19,13 +19,11 @@ const safeName = (str: string) => _.camelCase(str);
 
 export default async (instance: typeof pri) => {
   const modelRoot = 'src/models';
-  const projectRootPath = instance.project.getProjectRootPath();
-
-  const modelFilePath = path.join(projectRootPath, tempTypesPath.dir, 'models.ts');
+  const modelFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'models.ts');
   const modelFilePathInfo = path.parse(modelFilePath);
 
   /** Support pri/models alias */
-  instance.build.pipeConfig((env, config) => {
+  instance.build.pipeConfig(config => {
     if (!config.resolve.alias) {
       config.resolve.alias = {};
     }
@@ -38,12 +36,12 @@ export default async (instance: typeof pri) => {
   /** Set white files */
   const whiteList = [modelRoot];
   instance.project.whiteFileRules.add(file => {
-    return whiteList.some(whiteName => path.format(file) === path.join(projectRootPath, whiteName));
+    return whiteList.some(whiteName => path.format(file) === path.join(instance.projectRootPath, whiteName));
   });
 
   // src/models/**
   instance.project.whiteFileRules.add(file => {
-    const relativePath = path.relative(projectRootPath, file.dir);
+    const relativePath = path.relative(instance.projectRootPath, file.dir);
     return relativePath.startsWith(modelRoot);
   });
 
@@ -56,7 +54,7 @@ export default async (instance: typeof pri) => {
               return false;
             }
 
-            const relativePath = path.relative(projectRootPath, path.join(file.dir, file.name));
+            const relativePath = path.relative(instance.projectRootPath, path.join(file.dir, file.name));
 
             if (!relativePath.startsWith(modelRoot)) {
               return false;
@@ -71,7 +69,7 @@ export default async (instance: typeof pri) => {
     } as IResult;
   });
 
-  instance.project.onCreateEntry((analyseInfo: IResult, entry, env, projectConfig) => {
+  instance.project.onCreateEntry((analyseInfo: IResult, entry) => {
     if (analyseInfo.projectAnalyseRematch.modelFiles.length === 0) {
       return;
     }
