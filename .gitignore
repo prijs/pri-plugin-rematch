@@ -2,8 +2,7 @@
 /.cache
 /.vscode
 /.temp
-/built
+/dist
 /.DS_Store
 /coverage
 /.nyc_output
-/dist

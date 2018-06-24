@@ -1,8 +1,8 @@
 {
   "name": "pri-plugin-rematch",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "pri plugin for rematch",
-  "main": "built/src/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "test": "pri plugin test",
     "start": "pri plugin watch",

@@ -5,5 +5,4 @@
 /.DS_Store
 /coverage
 /.nyc_output
-/dist
 /tests
