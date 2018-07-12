@@ -117,26 +117,30 @@ export default async (instance: typeof pri) => {
       const store = init({models})
       export default store
 
+      export interface IState {
+        ${analyseInfo.projectAnalyseRematch.modelFiles
+          .map(modelFile => {
+            return `${modelFile.name}: typeof ${modelFile.name}.state;`;
+          })
+          .join('\n')}
+      }
+
       // Strong type connect
       type IMapStateToProps = (
-        state?: {
-          ${analyseInfo.projectAnalyseRematch.modelFiles
-            .map(modelFile => {
-              return `${modelFile.name}: typeof ${modelFile.name}.state;`;
-            })
-            .join('\n')}
-        },
+        state?: IState,
         props?: any
       ) => object;
 
+      export interface IDispatch {
+        ${analyseInfo.projectAnalyseRematch.modelFiles
+          .map(modelFile => {
+            return `${modelFile.name}: typeof ${modelFile.name}.reducers & typeof ${modelFile.name}.effects;`;
+          })
+          .join('\n')}
+      }
+
       type IMapDispatchToProps = (
-        dispatch?: {
-          ${analyseInfo.projectAnalyseRematch.modelFiles
-            .map(modelFile => {
-              return `${modelFile.name}: typeof ${modelFile.name}.reducers & typeof ${modelFile.name}.effects;`;
-            })
-            .join('\n')}
-        }
+        dispatch?: IDispatch
       ) => object;
 
       export const connect = (mapStateToProps?: IMapStateToProps, mapDispatchToProps?: IMapDispatchToProps) => {
