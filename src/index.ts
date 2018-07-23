@@ -134,7 +134,7 @@ export default async (instance: typeof pri) => {
       export interface IDispatch {
         ${analyseInfo.projectAnalyseRematch.modelFiles
           .map(modelFile => {
-            return `${modelFile.name}: typeof ${modelFile.name}.reducers & typeof ${modelFile.name}.effects;`;
+            return `${modelFile.name}: any & typeof ${modelFile.name}.effects;`;
           })
           .join('\n')}
       }
