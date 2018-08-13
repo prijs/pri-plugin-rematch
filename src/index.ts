@@ -96,6 +96,7 @@ export default async (instance: typeof pri) => {
 
     const modelsContent = `
       import { init } from '@rematch/core'
+      import immerPlugin from '@rematch/immer'
       import { connect as reduxConnect } from 'react-redux'
 
       ${analyseInfo.projectAnalyseRematch.modelFiles
@@ -114,7 +115,9 @@ export default async (instance: typeof pri) => {
         })
         .join(',')}}
 
-      const store = init({models})
+      const immer = immerPlugin()
+
+      const store = init({models, plugins: immer})
       export default store
 
       export interface IState {
