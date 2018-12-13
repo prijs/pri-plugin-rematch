@@ -18,7 +18,7 @@ interface IResult {
 const safeName = (str: string) => _.camelCase(str);
 
 export default async (instance: typeof pri) => {
-  const modelRoot = 'src/models';
+  const modelRoot = `src${path.sep}models`;
   const modelFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'models.ts');
   const modelFilePathInfo = path.parse(modelFilePath);
 
@@ -174,12 +174,12 @@ function getHelperContent(str: string) {
 }
 
 export function ensureStartWithWebpackRelativePoint(str: string) {
-  if (str.startsWith('/')) {
+  if (str.startsWith(path.sep)) {
     throw Error(`${str} is an absolute path!`);
   }
 
-  if (!str.startsWith('./') && !str.startsWith('../')) {
-    return './' + str;
+  if (!str.startsWith('.' + path.sep) && !str.startsWith('..' + path.sep)) {
+    return '.' + path.sep + str;
   } else {
     return str;
   }
