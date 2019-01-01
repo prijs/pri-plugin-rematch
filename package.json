@@ -1,8 +1,8 @@
 {
   "name": "pri-plugin-rematch",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "pri plugin for rematch",
-  "main": "dist/src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "pri test",
     "start": "pri dev",
@@ -35,6 +35,6 @@
   },
   "types": "src/index.tsx",
   "devDependencies": {
-    "pri": "^1.0.0-beta58"
+    "pri": "^1.0.0"
   }
 }
