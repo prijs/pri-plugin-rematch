@@ -1,1 +1,3 @@
-import * as path from 'path';
+test('test', () => {
+  expect(true).toBe(true);
+});

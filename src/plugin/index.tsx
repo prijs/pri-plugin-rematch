@@ -2,9 +2,7 @@ import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 import * as normalizePath from 'normalize-path';
 import * as path from 'path';
-import * as prettier from 'prettier';
-import { pri, tempJsEntryPath, tempPath, tempTypesPath } from 'pri';
-import { judgeHasComponents } from './methods';
+import { pri, tempJsEntryPath, tempTypesPath } from 'pri';
 
 interface IResult {
   projectAnalyseRematch: {
@@ -17,84 +15,83 @@ interface IResult {
 
 const safeName = (str: string) => _.camelCase(str);
 
-export default async (instance: typeof pri) => {
-  const modelRoot = `src${path.sep}models`;
-  const modelFilePath = path.join(instance.projectRootPath, tempTypesPath.dir, 'models.ts');
-  const modelFilePathInfo = path.parse(modelFilePath);
+const modelRoot = `src${path.sep}models`;
+const modelFilePath = path.join(pri.projectRootPath, tempTypesPath.dir, 'models.ts');
+const modelFilePathInfo = path.parse(modelFilePath);
 
-  /** Support pri/models alias */
-  instance.build.pipeConfig(config => {
-    if (!config.resolve.alias) {
-      config.resolve.alias = {};
+/** Support pri/models alias */
+pri.build.pipeConfig(config => {
+  if (!config.resolve.alias) {
+    config.resolve.alias = {};
+  }
+
+  config.resolve.alias['pri/models'] = modelFilePath;
+
+  return config;
+});
+
+/** Set white files */
+const whiteList = [modelRoot];
+pri.project.whiteFileRules.add(file => {
+  return whiteList.some(whiteName => path.format(file) === path.join(pri.projectRootPath, whiteName));
+});
+
+// src/models/**
+pri.project.whiteFileRules.add(file => {
+  const relativePath = path.relative(pri.projectRootPath, file.dir);
+  return relativePath.startsWith(modelRoot);
+});
+
+pri.project.onAnalyseProject(files => {
+  return {
+    projectAnalyseRematch: {
+      modelFiles: files
+        .filter(file => {
+          if (file.isDir) {
+            return false;
+          }
+
+          const relativePath = path.relative(pri.projectRootPath, path.join(file.dir, file.name));
+
+          if (!relativePath.startsWith(modelRoot)) {
+            return false;
+          }
+
+          return true;
+        })
+        .map(file => {
+          return { file, name: safeName(file.name) };
+        })
     }
+  } as IResult;
+});
 
-    config.resolve.alias['pri/models'] = modelFilePath;
+pri.project.onCreateEntry(async (analyseInfo: IResult, entry) => {
+  if (analyseInfo.projectAnalyseRematch.modelFiles.length === 0) {
+    return;
+  }
 
-    return config;
-  });
+  const entryRelativeToModels = ensureStartWithWebpackRelativePoint(
+    path.relative(path.join(tempJsEntryPath.dir), path.join(modelFilePathInfo.dir, modelFilePathInfo.name))
+  );
 
-  /** Set white files */
-  const whiteList = [modelRoot];
-  instance.project.whiteFileRules.add(file => {
-    return whiteList.some(whiteName => path.format(file) === path.join(instance.projectRootPath, whiteName));
-  });
-
-  // src/models/**
-  instance.project.whiteFileRules.add(file => {
-    const relativePath = path.relative(instance.projectRootPath, file.dir);
-    return relativePath.startsWith(modelRoot);
-  });
-
-  instance.project.onAnalyseProject(files => {
-    return {
-      projectAnalyseRematch: {
-        modelFiles: files
-          .filter(file => {
-            if (file.isDir) {
-              return false;
-            }
-
-            const relativePath = path.relative(instance.projectRootPath, path.join(file.dir, file.name));
-
-            if (!relativePath.startsWith(modelRoot)) {
-              return false;
-            }
-
-            return true;
-          })
-          .map(file => {
-            return { file, name: safeName(file.name) };
-          })
-      }
-    } as IResult;
-  });
-
-  instance.project.onCreateEntry((analyseInfo: IResult, entry) => {
-    if (analyseInfo.projectAnalyseRematch.modelFiles.length === 0) {
-      return;
-    }
-
-    const entryRelativeToModels = ensureStartWithWebpackRelativePoint(
-      path.relative(path.join(tempJsEntryPath.dir), path.join(modelFilePathInfo.dir, modelFilePathInfo.name))
-    );
-
-    entry.pipeAppHeader(header => {
-      return `
+  entry.pipeAppHeader(header => {
+    return `
         ${header}
         import { Provider } from 'react-redux'
         import rematchStore from "${normalizePath(entryRelativeToModels)}"
       `;
-    });
+  });
 
-    entry.pipeAppRouter(router => {
-      return `
+  entry.pipeAppRouter(router => {
+    return `
         <Provider store={rematchStore}>
           ${router}
         </Provider>
       `;
-    });
+  });
 
-    const modelsContent = `
+  const modelsContent = `
       import { init } from '@rematch/core'
       // import immerPlugin from '@rematch/immer'
       import { connect as reduxConnect } from 'react-redux'
@@ -152,16 +149,17 @@ export default async (instance: typeof pri) => {
       };
     `;
 
-    // If has stores, create helper.ts
-    fs.outputFileSync(
-      modelFilePath,
-      prettier.format(getHelperContent(modelsContent), {
-        semi: false,
-        parser: 'typescript'
-      })
-    );
-  });
-};
+  const prettier = await import('prettier');
+
+  // If has stores, create helper.ts
+  fs.outputFileSync(
+    modelFilePath,
+    prettier.format(getHelperContent(modelsContent), {
+      semi: false,
+      parser: 'typescript'
+    })
+  );
+});
 
 function getHelperContent(str: string) {
   return `
