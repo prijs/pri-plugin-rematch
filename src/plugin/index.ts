@@ -16,8 +16,9 @@ interface IResult {
 const safeName = (str: string) => _.camelCase(str);
 
 const modelRoot = `src${path.sep}models`;
-const modelFilePath = path.join(pri.projectRootPath, tempTypesPath.dir, 'models.ts');
-const modelFilePathInfo = path.parse(modelFilePath);
+const modelsFilePath = path.join(pri.projectRootPath, tempTypesPath.dir, 'models.ts');
+const modelFilePath = path.join(pri.projectRootPath, tempTypesPath.dir, 'model.ts');
+const modelsFilePathInfo = path.parse(modelsFilePath);
 
 /** Support pri/models alias */
 pri.build.pipeConfig(config => {
@@ -25,7 +26,8 @@ pri.build.pipeConfig(config => {
     config.resolve.alias = {};
   }
 
-  config.resolve.alias['pri/models'] = modelFilePath;
+  config.resolve.alias['pri/models'] = modelsFilePath;
+  config.resolve.alias['pri/model'] = modelFilePath;
 
   return config;
 });
@@ -72,7 +74,7 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entry) => {
   }
 
   const entryRelativeToModels = ensureStartWithWebpackRelativePoint(
-    path.relative(path.join(tempJsEntryPath.dir), path.join(modelFilePathInfo.dir, modelFilePathInfo.name))
+    path.relative(path.join(tempJsEntryPath.dir), path.join(modelsFilePathInfo.dir, modelsFilePathInfo.name))
   );
 
   entry.pipeAppHeader(header => {
@@ -100,7 +102,7 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entry) => {
         .map(modelFile => {
           const importAbsolutePath = path.join(modelFile.file.dir, modelFile.file.name);
           const importRelativePath = ensureStartWithWebpackRelativePoint(
-            path.relative(modelFilePathInfo.dir, importAbsolutePath)
+            path.relative(modelsFilePathInfo.dir, importAbsolutePath)
           );
           return `import ${modelFile.name} from "${normalizePath(importRelativePath)}"`;
         })
@@ -153,11 +155,37 @@ pri.project.onCreateEntry(async (analyseInfo: IResult, entry) => {
 
   // If has stores, create helper.ts
   fs.outputFileSync(
-    modelFilePath,
+    modelsFilePath,
     prettier.format(getHelperContent(modelsContent), {
       semi: false,
       parser: 'typescript'
     })
+  );
+
+  fs.outputFileSync(
+    modelFilePath,
+    prettier.format(
+      `
+    const model = <
+      State,
+      Reducers extends {
+        [key: string]: (state?: State, payload?: any) => State;
+      }
+    >(obj: {
+      state: State;
+      reducers: Reducers;
+      effects: {
+        [key: string]: (this: any, ...args: any[]) => void;
+      };
+    }) => {
+      return obj;
+    };
+    `,
+      {
+        semi: false,
+        parser: 'typescript'
+      }
+    )
   );
 });
 
