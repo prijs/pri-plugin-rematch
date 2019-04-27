@@ -10,11 +10,22 @@ We provide `pri-plugin-rematch` to use it more easy!
 npm i pri-plugin-rematch
 ```
 
+```
+.
+├── src
+│    └── models
+│          ├── application.ts      # model file
+│          └── user.ts             # model file
+└── priconfig.json
+```
+
 Let’s try it! For example, create a model named `user`:
 
 **src/models/user.ts**
 
 ```typescript
+import { model } from 'pri/model';
+
 export default model({
   state: {
     name: 'jeck',
@@ -37,25 +48,6 @@ export default model({
     }
   }
 });
-```
-
-> To enhance typescript support for model, we provide a model function here:
-
-```typescript
-const model = <
-  State,
-  Reducers extends {
-    [key: string]: (state?: State, payload?: any) => State;
-  }
->(obj: {
-  state: State;
-  reducers: Reducers;
-  effects: {
-    [key: string]: (this: any, ...args: any[]) => void;
-  };
-}) => {
-  return obj;
-};
 ```
 
 Then, use it in pages!
@@ -82,4 +74,4 @@ export default class Page extends React.PureComponent<Props, State> {
 
 > Import connect from 'pri/models' is a better way, 'pri/models' provides a strong typed `connect` function:
 
-<img src="https://user-images.githubusercontent.com/7970947/39965212-62615908-56c7-11e8-9084-081734eaf280.png" width=400>
+<img src="https://user-images.githubusercontent.com/7970947/39965212-62615908-56c7-11e8-9084-081734eaf280.png" width={400} />
