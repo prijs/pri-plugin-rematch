@@ -6,10 +6,10 @@ import { pri, tempJsEntryPath, tempTypesPath } from 'pri';
 
 interface IResult {
   projectAnalyseRematch: {
-    modelFiles: Array<{
+    modelFiles: {
       name: string;
       file: path.ParsedPath;
-    }>;
+    }[];
   };
 }
 
@@ -65,7 +65,7 @@ pri.project.onAnalyseProject(files => {
           return { file, name: safeName(file.name) };
         })
     }
-  } as IResult;
+  };
 });
 
 pri.project.onCreateEntry(async (analyseInfo: IResult, entry) => {
@@ -204,9 +204,8 @@ export function ensureStartWithWebpackRelativePoint(str: string) {
     throw Error(`${str} is an absolute path!`);
   }
 
-  if (!str.startsWith('.' + path.sep) && !str.startsWith('..' + path.sep)) {
-    return '.' + path.sep + str;
-  } else {
-    return str;
+  if (!str.startsWith(`.${path.sep}`) && !str.startsWith(`..${path.sep}`)) {
+    return `.${path.sep}${str}`;
   }
+  return str;
 }

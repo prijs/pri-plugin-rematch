@@ -9,7 +9,6 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "rootDir": "./src",
     "baseUrl": ".",
     "lib": [
       "dom",
@@ -21,6 +20,9 @@
       "pri/*": [
         "pri",
         ".temp/types/*"
+      ],
+      "src/*": [
+        "src/*"
       ]
     }
   },

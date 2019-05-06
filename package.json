@@ -1,6 +1,6 @@
 {
   "name": "pri-plugin-rematch",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "pri plugin for rematch",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "bundle": "pri bundle",
     "preview": "pri preview",
     "analyse": "pri analyse",
-    "format": "tslint --fix './src/**/*.?(ts|tsx)' && prettier --write './src/**/*.?(ts|tsx)'",
+    "format": "eslint --fix './?(src|docs|tests)/**/*.?(ts|tsx)'",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -26,20 +26,22 @@
   },
   "homepage": "https://github.com/prijs/pri-plugin-rematch#readme",
   "dependencies": {
-    "@rematch/core": "^1.0.0-alpha.8",
+    "@rematch/core": "^1.1.0",
     "@types/react-redux": "^6.0.0",
     "react-redux": "^5.0.7",
     "@babel/runtime": "^7.0.0"
   },
-  "pri": {
-    "type": "plugin",
-    "version": "2.0.3"
-  },
   "types": "src/index.ts",
   "devDependencies": {
-    "pri": "^2.0.3"
+    "pri": "^3.0.6"
   },
   "tnpm": {
     "mode": "npm"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
   }
 }
